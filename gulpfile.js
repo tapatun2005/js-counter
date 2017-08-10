@@ -28,12 +28,10 @@ var gs = require('gulp-selectors');
 var isProd = !!argv.production;
 var isDev = !isProd;
 
-
-
 // Tasks
 
 gulp.task('default', ['compile', 'watch', 'server']);
-gulp.task('compile', ['template','sass']);
+gulp.task('compile', ['template','sass', 'scripts']);
 
 gulp.task('template', function(){
 	gulp.src(source + "index.html")
@@ -57,13 +55,6 @@ gulp.task("sass-desktop", function(){
 		.pipe(gulp.dest(dest + "css/"));
 });
 
-gulp.task ("watch", function() {
-	gulp.watch(source + 'scss/*.scss', ['sass-desktop']);
-	gulp.watch(source + '*.html', ['template']);
-	gulp.watch(source + 'js/*.js', ['scripts']);
-});
-
-
 gulp.task('scripts', function() {
   return gulp.src(source +'js/*.js')
   	.pipe(gulpif(isDev, sourcemaps.init()))
@@ -73,9 +64,13 @@ gulp.task('scripts', function() {
     .pipe(gulpif(isDev, sourcemaps.write('.')))
     .pipe(gulpif(isProd, concat('countup.min.js')))
     .pipe(gulpif(isProd, uglify()))
-	//.pipe(uglify())
-	//.pipe(concat('countup.min.js'))
 	.pipe(gulp.dest(dest + 'js/'));
+});
+
+gulp.task ("watch", function() {
+	gulp.watch(source + 'scss/*.scss', ['sass-desktop']);
+	gulp.watch(source + '*.html', ['template']);
+	gulp.watch(source + 'js/*.js', ['scripts']);
 });
 
 gulp.task("server", function(){

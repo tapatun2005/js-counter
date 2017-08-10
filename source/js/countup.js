@@ -14,8 +14,8 @@ class Counter {
 	constructor(selector, startVal, endVal, duration, decimals, options = {}) {
 		let lastTime = 0;
 		this.selector = selector;
-		this.startVal = startVal || defaultValues.startVal;
-		this.endVal = endVal || defaultValues.endVal;
+		this.startVal = parseInt(startVal) || defaultValues.startVal;
+		this.endVal = parseInt(endVal) || defaultValues.endVal;
 		this.duration = duration || defaultValues.duration;
 		this.decimals = Math.max(0, decimals) || defaultValues.decimals;
 		this.countDown = (this.startVal > this.endVal);
@@ -23,9 +23,15 @@ class Counter {
 		this.options = {
 			separator: options.separator || defaultValues.options.separator,
 			decimal: options.decimal || defaultValues.options.decimal,
-			grouping: options.grouping || defaultValues.options.grouping
+			grouping: options.grouping || false,
+			easing: options.easing || false
 		}
 	}
+
+	easeOutExpo(t, b, c, d) {
+		return c * (-Math.pow(2, -10 * t / d) + 1) * 1024 / 1023 + b;
+	}
+
 
 	formatNumber(number) {
 		number = number.toFixed(this.decimals);
@@ -43,7 +49,6 @@ class Counter {
 		return x1 + x2;
 	}
 
-
 	// Print value
 	// ------------------------------------
 	printValue(value) {
@@ -57,11 +62,24 @@ class Counter {
 		let progress = timestamp - this.startTime;
 
 		// animation
+
+		if(this.options.easing) {
+			if (this.countDown) {
+				this.frameVal = this.startVal - this.easeOutExpo(progress, 0, this.startVal - this.endVal, this.duration);
+			} else {
+				this.frameVal = this.easeOutExpo(progress, this.startVal, this.endVal - this.startVal, this.duration);
+			}
+		} else {
+			if (this.countDown) {
+				this.frameVal = this.startVal - (this.startVal - this.endVal) * (progress / this.duration);
+			} else {
+				this.frameVal = this.startVal + (this.endVal - this.startVal) * (progress / this.duration);
+			}
+		}
+
 		if(this.countDown) {
-			this.frameVal = this.startVal - (this.startVal - this.endVal) * (progress / this.duration);
 			this.frameVal = (this.frameVal < this.endVal) ? this.endVal : this.frameVal;
 		} else {
-			this.frameVal = this.startVal + (this.endVal - this.startVal) * (progress / this.duration);
 			this.frameVal = (this.frameVal > this.endVal) ? this.endVal : this.frameVal;
 		}
 
@@ -81,10 +99,9 @@ class Counter {
 	}
 }
 
-
 // USAGE
 
-// var counter = new Counter(selector, startVal, endVal, duration, decimals, { separator: ",", decimal: ".", grouping: false })
+// var counter = new Counter(selector, startVal, endVal, duration, decimals, { separator: ",", decimal: ".", grouping: false, easing: false })
 // counter.start();
 
 

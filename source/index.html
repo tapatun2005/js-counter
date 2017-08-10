@@ -7,10 +7,18 @@
 </head>
 <body>
 
-	<span id="count">0</span>
+	<span class="count" data-count-to="1500">1100</span>
 	
-
 <script src="js/countup.js"></script>
+<script>
+	var counts = document.querySelectorAll('.count');
+	for(var i = 0; i < counts.length; i++) {
+		var countTo = counts[i].dataset.countTo;
+		var counter = new Counter(counts[i], counts[i].innerHTML, countTo, 4000, 0, {easing: true, grouping: true });
+		counter.start();
+		console.log(counter.options.separator, counter.options.easing);
+	}
+</script>
 
 </body>
 </html>
